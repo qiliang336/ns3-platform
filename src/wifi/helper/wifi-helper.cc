@@ -857,14 +857,14 @@ WifiHelper::Install(const WifiPhyHelper& phyHelper,
 
 NetDeviceContainer
 WifiHelper::Install(const WifiPhyHelper& phyHelper,
-                    const WifiMacHelper& macHelper,
-                    NodeContainer c) const
+                    const WifiMacHelper& macHelper, NodeContainer c) const
 {
     return Install(phyHelper, macHelper, c.Begin(), c.End());
 }
 
 NetDeviceContainer
-WifiHelper::Install(const WifiPhyHelper& phy, const WifiMacHelper& mac, Ptr<Node> node) const
+WifiHelper::Install(const WifiPhyHelper& phy, 
+                    const WifiMacHelper& mac, Ptr<Node> node) const
 {
     return Install(phy, mac, NodeContainer(node));
 }

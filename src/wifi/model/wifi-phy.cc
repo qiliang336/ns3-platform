@@ -975,12 +975,17 @@ WifiPhy::ConfigureStandard(WifiStandard standard)
         Configure80211p();
         break;
     case WIFI_STANDARD_80211n:
+    case WIFI_STANDARD_80211n_2_4GHZ:
+    case WIFI_STANDARD_80211n_5GHZ:
         Configure80211n();
         break;
     case WIFI_STANDARD_80211ac:
         Configure80211ac();
         break;
     case WIFI_STANDARD_80211ax:
+    case WIFI_STANDARD_80211ax_2_4GHZ:
+    case WIFI_STANDARD_80211ax_5GHZ:
+    case WIFI_STANDARD_80211ax_6GHZ:
         Configure80211ax();
         break;
     case WIFI_STANDARD_80211be:

@@ -477,6 +477,8 @@ SpectrumWifiPhy::GetBandBandwidth() const
     case WIFI_STANDARD_80211g:
     case WIFI_STANDARD_80211b:
     case WIFI_STANDARD_80211n:
+    case WIFI_STANDARD_80211n_2_4GHZ:
+    case WIFI_STANDARD_80211n_5GHZ:
     case WIFI_STANDARD_80211ac:
         // Use OFDM subcarrier width of 312.5 KHz as band granularity
         bandBandwidth = 312500;
@@ -494,6 +496,9 @@ SpectrumWifiPhy::GetBandBandwidth() const
         }
         break;
     case WIFI_STANDARD_80211ax:
+    case WIFI_STANDARD_80211ax_2_4GHZ:
+    case WIFI_STANDARD_80211ax_5GHZ:
+    case WIFI_STANDARD_80211ax_6GHZ:
     case WIFI_STANDARD_80211be:
         // Use OFDM subcarrier width of 78.125 KHz as band granularity
         bandBandwidth = 78125;
