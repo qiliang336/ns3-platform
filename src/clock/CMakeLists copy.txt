@@ -1,0 +1,29 @@
+set(name clock)
+
+set(source_files
+    model/clock-model.cc
+    model/local-clock.cc
+    model/localtime-simulator-impl.cc
+    model/perfect-clock-model-impl.cc
+    helper/clock-helper.cc
+)
+
+set(header_files
+    model/clock-model.h
+    model/local-clock.h
+    model/localtime-simulator-impl.h
+    model/perfect-clock-model-impl.h
+    helper/clock-helper.h
+)
+
+set(libraries_to_link ${libnetwork} ${libpropagation} ${libenergy}
+                      ${libspectrum} ${libcore} ${libmobility}
+)
+
+set(test_sources
+    test/clock-test.cc
+)
+
+build_lib("${name}" "${source_files}" "${header_files}" "${libraries_to_link}"
+          "${test_sources}"
+)

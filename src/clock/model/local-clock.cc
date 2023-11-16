@@ -1,0 +1,173 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
+/*
+ * Copyright (c) 2020 EPFL
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation;
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * Authors: Guillermo Aguirre <guillermo.aguirrerodrigo@epfl.ch>
+ *          Ludovic Thomas <ludovic.thomas@epfl.ch>
+ */
+
+
+#include "ns3/local-clock.h"
+#include "ns3/log.h"
+#include "ns3/simulator.h"
+#include "ns3/pointer.h"
+#include "ns3/localtime-simulator-impl.h"
+#include "ns3/system-mutex.h"
+#include "ns3/system-thread.h"
+
+/**
+ * \file clock
+ * ns3::LocalClock implementation
+ */
+
+namespace ns3 {
+
+NS_LOG_COMPONENT_DEFINE ("LocalClock");
+
+NS_OBJECT_ENSURE_REGISTERED (LocalClock);
+
+TypeId
+LocalClock::GetTypeId (void)
+{
+  static TypeId tid = TypeId ("ns3::LocalClock")
+    .SetParent<Object> ()
+    .SetGroupName ("Clock")
+    .AddConstructor<LocalClock> ()
+    .AddAttribute ("ClockModel",
+                   "The clock model implementation used to simulate local clock",
+                   PointerValue (),
+                   MakePointerAccessor (&LocalClock::m_clock),
+                   MakePointerChecker<ClockModel> ())
+  ;
+  return tid;
+}
+
+LocalClock::LocalClock ()
+{
+  NS_LOG_FUNCTION (this);
+}
+
+LocalClock::LocalClock (Ptr<ClockModel> clock)
+{
+  NS_LOG_FUNCTION (this);
+  m_clock = clock;
+}
+
+LocalClock::~LocalClock ()
+{
+  NS_LOG_FUNCTION (this);
+}
+
+Time
+LocalClock::GetLocalTime ()
+{
+  NS_LOG_FUNCTION (this);
+  return m_clock->GetLocalTime ();
+}
+
+void
+LocalClock::SetClock (Ptr<ClockModel> newClock)
+{
+  NS_LOG_FUNCTION (this << newClock);
+  Ptr<ClockModel> oldClock = m_clock;
+  m_clock = newClock;
+
+  //First run over the list to remove expire events.
+  for (std::list<EventId>::iterator iter = m_events.begin (); iter != m_events.end ();)
+    {
+      if ((*iter).IsExpired ())
+        {
+          iter = m_events.erase (iter);
+        }
+      else
+        {
+          iter++;
+        }
+    }
+
+  std::list<EventId> eventListAux (m_events);
+  m_events.clear ();
+
+  for (std::list<EventId>::iterator iter = eventListAux.begin (); iter != eventListAux.end (); ++iter)
+    {
+      Time eventTimeStamp = TimeStep ((*iter).GetTs ());
+      Ptr<SimulatorImpl> simImpl = Simulator::GetImplementation ();
+      Ptr<LocalTimeSimulatorImpl> mysimImpl = DynamicCast<LocalTimeSimulatorImpl> (simImpl);
+
+      if (mysimImpl == nullptr)
+        {
+          NS_LOG_WARN ("NOT USING THE CORRECT SIMULATOR IMPLEMENTATION");
+        }
+      EventId newID = ReSchedule (eventTimeStamp, (*iter).PeekEventImpl (), oldClock);
+      mysimImpl->CancelRescheduling (*iter, newID);
+    }
+}
+
+Time
+LocalClock::GlobalToLocalTime (Time globalTime)
+{
+  NS_LOG_FUNCTION (this << globalTime);
+  return m_clock->GlobalToLocalTime (globalTime);
+}
+
+Time
+LocalClock::LocalToGlobalTime (Time localTime)
+{
+  NS_LOG_FUNCTION (this << localTime);
+  return m_clock->LocalToGlobalTime (localTime);
+}
+
+Time
+LocalClock::GlobalToLocalDelay (Time globalDelay)
+{
+  NS_LOG_FUNCTION (this << globalDelay);
+  return m_clock->GlobalToLocalDelay (globalDelay);
+}
+
+Time
+LocalClock::LocalToGlobalDelay (Time localDelay)
+{
+  NS_LOG_FUNCTION (this << localDelay);
+  return m_clock->LocalToGlobalDelay (localDelay);
+}
+
+void
+LocalClock::InsertEvent (EventId event)
+{
+  for (EventList::iterator i = m_events.begin (); i != m_events.end ();)
+    {
+      if (i->IsExpired ())
+        {
+          i = m_events.erase (i);
+        }
+      else
+        {
+          ++i;
+        }
+
+    }
+  m_events.push_back (event);
+}
+
+EventId
+LocalClock::ReSchedule (Time globalTimeStamp, EventImpl *impl, Ptr<ClockModel> oldclock)
+{
+  NS_LOG_FUNCTION (this << globalTimeStamp << impl);
+  Time globalOldDurationRemain = globalTimeStamp - Simulator::Now ();
+  Time localOldDurationRemain = oldclock->GlobalToLocalDelay (globalOldDurationRemain);
+  return Simulator::Schedule (localOldDurationRemain, impl);
+}
+}//namespace ns3
