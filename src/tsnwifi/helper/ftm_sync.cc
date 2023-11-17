@@ -130,8 +130,8 @@ void ReceivePacket (Ptr<Socket> socket)
 void GenerateTraffic (Ptr<WifiNetDevice> ap, Ptr<WifiNetDevice> sta, Address recvAddr, FtmParams ftm_params, Ptr<LocalClock> clock_0, Ptr<LocalClock> clock_3)
 {
 
-	Ptr<RegularWifiMac> sta_mac = sta->GetMac()->GetObject<RegularWifiMac>();
-
+	Ptr<WifiMac> tmp_mac = sta->GetMac();//分开便于调试
+	Ptr<RegularWifiMac> sta_mac = tmp_mac->GetObject<RegularWifiMac>();
 	Mac48Address to = Mac48Address::ConvertFrom (recvAddr);
 
 	Ptr<FtmSession> session = sta_mac->NewFtmSession(to);

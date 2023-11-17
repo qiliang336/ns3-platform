@@ -1,0 +1,104 @@
+main函数在DetNetWifi_Scenario0.cc中
+1.执行到main函数中的代码Simulator::Run ();
+跳转到simulator.cc中的函数:
+void
+Simulator::Run (void)
+{
+  NS_LOG_FUNCTION_NOARGS ();
+  Time::ClearMarkedTimes ();
+  GetImpl ()->Run ();
+}
+
+2.执行上面这个函数中的代码GetImpl ()->Run ();
+跳转到default-simulator-impl.cc中的函数:
+void
+DefaultSimulatorImpl::Run (void)
+{
+  NS_LOG_FUNCTION (this);
+  // Set the current threadId as the main threadId
+  m_main = SystemThread::Self ();
+  ProcessEventsWithContext ();
+  m_stop = false;
+
+  while (!m_events->IsEmpty () && !m_stop)
+    {
+      ProcessOneEvent ();
+    }
+
+  // If the simulator stopped naturally by lack of events, make a
+  // consistency test to check that we didn't lose any events along the way.
+  NS_ASSERT (!m_events->IsEmpty () || m_unscheduledEvents == 0);
+}
+
+3.执行上面这个函数的代码:ProcessOneEvent ();
+跳转到default-simulator-impl.cc中的函数:
+void
+DefaultSimulatorImpl::ProcessOneEvent (void)
+{
+  Scheduler::Event next = m_events->RemoveNext ();
+
+  NS_ASSERT (next.key.m_ts >= m_currentTs);
+  m_unscheduledEvents--;
+  m_eventCount++;
+
+  NS_LOG_LOGIC ("handle " << next.key.m_ts);
+  m_currentTs = next.key.m_ts;
+  m_currentContext = next.key.m_context;
+  m_currentUid = next.key.m_uid;
+  next.impl->Invoke ();
+  next.impl->Unref ();
+
+  ProcessEventsWithContext ();
+}
+
+4.执行上面这个函数中的代码next.impl->Invoke ();
+跳转到event-impl.cc中的函数:
+void
+EventImpl::Invoke (void)
+{
+  NS_LOG_FUNCTION (this);
+  if (!m_cancel)
+    {
+      Notify ();
+    }
+}
+
+5.执行上面这个函数中的代码Notify ();
+跳转到make-event.h中的函数:
+template <typename MEM, typename OBJ>
+EventImpl * MakeEvent (MEM mem_ptr, OBJ obj)
+{
+  // zero argument version
+  class EventMemberImpl0 : public EventImpl
+  {
+  public:
+    EventMemberImpl0 (OBJ obj, MEM function)
+      : m_obj (obj),
+        m_function (function)
+    {}
+    virtual ~EventMemberImpl0 ()
+    {}
+
+  private:
+    virtual void Notify (void)
+    {
+      (EventMemberImplObjTraits<OBJ>::GetReference (m_obj).*m_function)();
+    }
+    OBJ m_obj;
+    MEM m_function;
+  } *ev = new EventMemberImpl0 (obj, mem_ptr);
+  return ev;
+}
+
+
+问题:少两个events.
+发现问题所在代码:
+    // Simulator::Run ();//测试结果:事件数相同,m_unscheduledEvent=22
+	wifi.ConfigureDevices(AP1NodeContainer,wifi1StaNodeContainer,ssidname,0,38,40);
+	ap1Devices = wifi.GetNetDeviceContainerAP();
+	sta1Devices = wifi.GetNetDeviceContainerSTA();
+	ssidname={"AP2"};//SSID of AP2
+	wifi2.ConfigureDevices(AP2NodeContainer,wifi2StaNodeContainer,ssidname,0,38,40);
+	ap2Devices = wifi2.GetNetDeviceContainerAP();
+	sta2Devices = wifi2.GetNetDeviceContainerSTA();
+	// Simulator::Run ();//测试结果:事件数不相同,m_unscheduledEvent=32(应该为34)

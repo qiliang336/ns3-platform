@@ -362,7 +362,8 @@ void SimValSetup(NodeContainer& AP1NodeContainer,NodeContainer& AP2NodeContainer
 	// TODO: explore other intervals
 	Simulator::Schedule ( Seconds (10), &SimValSetup, AP1NodeContainer, AP2NodeContainer,ad_hoc);
 	Simulator::Schedule ( Seconds (0.02), &SetChanWidth, server);
-}
+	//Similator::Run()//测试
+	}
 
 
 /***********************************************************************************************
@@ -619,7 +620,7 @@ main (int argc, char *argv[])
         mobility.Install (wifi1StaNodeContainer.Get(1));
 
 
-
+	
 	/********************************************************************************************
      * Setting up of WiFi devices, SSIDs, channels, etc
      ********************************************************************************************/
@@ -631,6 +632,8 @@ main (int argc, char *argv[])
 	// Specifying channel width and channel number
 	//Arguments are (AP,stations,SSID,channel index,channel number, channel width)
 
+	//问题所在:
+	// Simulator::Run ();//测试结果:事件数相同,m_unscheduledEvent=22
 	wifi.ConfigureDevices(AP1NodeContainer,wifi1StaNodeContainer,ssidname,0,38,40);
 	ap1Devices = wifi.GetNetDeviceContainerAP();
 	sta1Devices = wifi.GetNetDeviceContainerSTA();
@@ -638,6 +641,9 @@ main (int argc, char *argv[])
 	wifi2.ConfigureDevices(AP2NodeContainer,wifi2StaNodeContainer,ssidname,0,38,40);
 	ap2Devices = wifi2.GetNetDeviceContainerAP();
 	sta2Devices = wifi2.GetNetDeviceContainerSTA();
+	// Simulator::Run ();//测试结果:事件数不相同,m_unscheduledEvent=32(应该为34)
+
+
 
 
 	//Creating ad-hoc link between APs to enable communication
@@ -839,6 +845,7 @@ main (int argc, char *argv[])
 
 	//FTM: set time resolution to pico seconds for the time stamps, as default is in nano seconds. IMPORTANT
 	Time::SetResolution(Time::PS);
+	// Simulator::Run (); 测试
 	Simulator::Stop (Seconds (simulationTime));
 
 /******************************************************************************************
@@ -879,7 +886,7 @@ main (int argc, char *argv[])
 	
 	FlowMonitorHelper flowmon;
   Ptr<FlowMonitor> monitor = flowmon.InstallAll();
-
+	Simulator::Run ();//测试
 	Simulator::Stop (Seconds (simulationTime));
 	
 	/*Schedule the sending of time from switch to AP */
