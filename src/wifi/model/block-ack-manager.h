@@ -449,6 +449,9 @@ class BlockAckManager : public Object
      * \param tid the TID
      */
     void RemoveFromSendBarIfDataQueuedList(const Mac48Address& recipient, uint8_t tid);
+    //新增
+    bool ExistsAgreementInState (Mac48Address recipient, uint8_t tid,
+                               OriginatorBlockAckAgreement::State state) const;
 
   protected:
     void DoDispose() override;
@@ -527,6 +530,13 @@ class BlockAckManager : public Object
      */
     TracedCallback<Time, Mac48Address, uint8_t, OriginatorBlockAckAgreement::State>
         m_originatorAgreementState;
+    //新增
+    typedef std::map<std::pair<Mac48Address, uint8_t>,
+                   std::pair<OriginatorBlockAckAgreement, PacketQueue> > Agreements;
+
+    typedef std::map<std::pair<Mac48Address, uint8_t>,
+                   std::pair<OriginatorBlockAckAgreement, PacketQueue> >::const_iterator AgreementsCI;               
+    Agreements m_agreements;
 };
 
 } // namespace ns3

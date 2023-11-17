@@ -129,6 +129,9 @@ class MultiUserScheduler : public Object
      *                 for channel access
      */
     void SetAccessReqInterval(Time interval);
+    //新增
+    DlMuInfo& GetDlMuInfo (void);
+    UlMuInfo& GetUlMuInfo (void);
 
   protected:
     /**
@@ -189,6 +192,17 @@ class MultiUserScheduler : public Object
     uint16_t m_allowedWidth; //!< the allowed width in MHz for the current transmission
     uint8_t m_linkId;        //!< the ID of the link over which channel access has been granted
 
+    //新增
+    Ptr<HeFrameExchangeManager> m_heFem;   //!< HE Frame Exchange Manager
+    uint32_t m_sizeOf8QosNull;             //!< size in bytes of 8 QoS Null frames
+    /**
+   * Get the format of the last transmission, as determined by the last call
+   * to NotifyAccessGranted that did not return NO_TX.
+   *
+   * \return the format of the last transmission
+   */
+    TxFormat GetLastTxFormat (void) const;
+    Ptr<WifiRemoteStationManager> GetWifiRemoteStationManager (void) const;
   private:
     /**
      * Set the wifi MAC. Note that it must be the MAC of an HE AP.
@@ -248,6 +262,10 @@ class MultiUserScheduler : public Object
     AcIndex m_accessReqAc;         ///< AC we request channel access for
     bool m_restartTimerUponAccess; ///< whether the channel access timer has to be restarted
                                    ///< upon channel access
+    //新增
+    TxFormat m_lastTxFormat {NO_TX};       //!< the format of last transmission
+    DlMuInfo m_dlInfo;                     //!< information required to perform a DL MU transmission
+    UlMuInfo m_ulInfo;                     //!< information required to solicit an UL MU transmission
 };
 
 } // namespace ns3

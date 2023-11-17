@@ -2065,4 +2065,56 @@ WifiRemoteStationManager::UseLdpcForDestination(Mac48Address dest) const
     return (GetLdpcSupported() && GetLdpcSupported(dest));
 }
 
+//新增
+WifiTxVector
+WifiRemoteStationManager::GetDataTxVector (const WifiMacHeader &header)
+{
+  NS_LOG_FUNCTION (this << header);
+  Mac48Address address = header.GetAddr1 ();
+  if (!header.IsMgt () && address.IsGroup ())
+    {
+      WifiMode mode = GetNonUnicastMode ();
+      WifiTxVector v;
+      v.SetMode (mode);
+      v.SetPreambleType (GetPreambleForTransmission (mode.GetModulationClass (), GetShortPreambleEnabled ()));
+      v.SetTxPowerLevel (m_defaultTxPowerLevel);
+      v.SetChannelWidth (GetChannelWidthForTransmission (mode, m_wifiPhy->GetChannelWidth ()));
+      v.SetGuardInterval (ConvertGuardIntervalToNanoSeconds (mode, DynamicCast<WifiNetDevice> (m_wifiPhy->GetDevice ())));
+      v.SetNTx (GetNumberOfAntennas ());
+      v.SetNss (1);
+      v.SetNess (0);
+      return v;
+    }
+  WifiTxVector txVector;
+  if (header.IsMgt ())
+    {
+      //Use the lowest basic rate for management frames
+      WifiMode mgtMode;
+      if (GetNBasicModes () > 0)
+        {
+          mgtMode = GetBasicMode (0);
+        }
+      else
+        {
+          mgtMode = GetDefaultMode ();
+        }
+      txVector.SetMode (mgtMode);
+      txVector.SetPreambleType (GetPreambleForTransmission (mgtMode.GetModulationClass (), GetShortPreambleEnabled ()));
+      txVector.SetTxPowerLevel (m_defaultTxPowerLevel);
+      txVector.SetChannelWidth (GetChannelWidthForTransmission (mgtMode, m_wifiPhy->GetChannelWidth ()));
+      txVector.SetGuardInterval (ConvertGuardIntervalToNanoSeconds (mgtMode, DynamicCast<WifiNetDevice> (m_wifiPhy->GetDevice ())));
+    }
+  else
+    {
+      txVector = DoGetDataTxVector (Lookup (address));
+      txVector.SetLdpc (txVector.GetMode ().GetModulationClass () < WIFI_MOD_CLASS_HT ? 0 : UseLdpcForDestination (address));
+    }
+  Ptr<WifiNetDevice> device = DynamicCast<WifiNetDevice> (m_wifiPhy->GetDevice ());
+  Ptr<HeConfiguration> heConfiguration = device->GetHeConfiguration ();
+  if (heConfiguration)
+    {
+      txVector.SetBssColor (heConfiguration->GetBssColor ());
+    }
+  return txVector;
+}
 } // namespace ns3

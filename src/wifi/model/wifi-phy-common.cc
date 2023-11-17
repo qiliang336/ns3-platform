@@ -274,4 +274,30 @@ IsEht(WifiPreamble preamble)
     return ((preamble == WIFI_PREAMBLE_EHT_MU) || (preamble == WIFI_PREAMBLE_EHT_TB));
 }
 
+//新增
+
+WifiPreamble
+GetPreambleForTransmission (WifiModulationClass modulation, bool useShortPreamble)
+{
+  if (modulation == WIFI_MOD_CLASS_HE)
+    {
+      return WIFI_PREAMBLE_HE_SU;
+    }
+  else if (modulation == WIFI_MOD_CLASS_VHT)
+    {
+      return WIFI_PREAMBLE_VHT_SU;
+    }
+  else if (modulation == WIFI_MOD_CLASS_HT)
+    {
+      return WIFI_PREAMBLE_HT_MF; // HT_GF has been removed
+    }
+  else if (modulation == WIFI_MOD_CLASS_HR_DSSS && useShortPreamble) //ERP_DSSS is modeled through HR_DSSS (since same preamble and modulation)
+    {
+      return WIFI_PREAMBLE_SHORT;
+    }
+  else
+    {
+      return WIFI_PREAMBLE_LONG;
+    }
+}
 } // namespace ns3

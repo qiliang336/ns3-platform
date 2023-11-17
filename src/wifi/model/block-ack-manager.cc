@@ -907,4 +907,32 @@ BlockAckManager::GetOriginatorStartingSequence(const Mac48Address& recipient, ui
     return seqNum;
 }
 
+//新增
+bool
+BlockAckManager::ExistsAgreementInState (Mac48Address recipient, uint8_t tid,
+                                         OriginatorBlockAckAgreement::State state) const
+{
+  AgreementsCI it;
+  it = m_agreements.find (std::make_pair (recipient, tid));
+  if (it != m_agreements.end ())
+    {
+      switch (state)
+        {
+        case OriginatorBlockAckAgreement::ESTABLISHED:
+          return it->second.first.IsEstablished ();
+        case OriginatorBlockAckAgreement::PENDING:
+          return it->second.first.IsPending ();
+        case OriginatorBlockAckAgreement::REJECTED:
+          return it->second.first.IsRejected ();
+        case OriginatorBlockAckAgreement::NO_REPLY:
+          return it->second.first.IsNoReply ();
+        case OriginatorBlockAckAgreement::RESET:
+          return it->second.first.IsReset ();
+        default:
+          NS_FATAL_ERROR ("Invalid state for block ack agreement");
+        }
+    }
+  return false;
+}
+
 } // namespace ns3

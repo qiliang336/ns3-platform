@@ -353,4 +353,42 @@ MultiUserScheduler::GetMaxSizeOfQosNullAmpdu(const CtrlTriggerHeader& trigger) c
     return maxSize;
 }
 
+//新增
+MultiUserScheduler::TxFormat
+MultiUserScheduler::GetLastTxFormat (void) const
+{
+  return m_lastTxFormat;
+}
+
+MultiUserScheduler::DlMuInfo&
+MultiUserScheduler::GetDlMuInfo (void)
+{
+  NS_ABORT_MSG_IF (m_lastTxFormat != DL_MU_TX, "Next transmission is not DL MU");
+
+#ifdef NS3_BUILD_PROFILE_DEBUG
+  // check that all the addressed stations support HE
+  for (auto& psdu : m_dlInfo.psduMap)
+    {
+      NS_ABORT_MSG_IF (!GetWifiRemoteStationManager ()->GetHeSupported (psdu.second->GetAddr1 ()),
+                        "Station " << psdu.second->GetAddr1 () << " does not support HE");
+    }
+#endif
+
+  return m_dlInfo;
+}
+
+Ptr<WifiRemoteStationManager>
+MultiUserScheduler::GetWifiRemoteStationManager (void) const
+{
+  return m_apMac->GetWifiRemoteStationManager ();
+}
+
+MultiUserScheduler::UlMuInfo&
+MultiUserScheduler::GetUlMuInfo (void)
+{
+  NS_ABORT_MSG_IF (m_lastTxFormat != UL_MU_TX, "Next transmission is not UL MU");
+
+  return m_ulInfo;
+}
+
 } // namespace ns3

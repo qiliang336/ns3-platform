@@ -430,6 +430,9 @@ class HePhy : public VhtPhy
      */
     static uint32_t GetSigBFieldSize(const WifiTxVector& txVector);
 
+  //新增
+  static uint16_t ConvertHeTbPpduDurationToLSigLength (Time ppduDuration, WifiPhyBand band);
+  
   protected:
     PhyFieldRxStatus ProcessSig(Ptr<Event> event,
                                 PhyFieldRxStatus status,

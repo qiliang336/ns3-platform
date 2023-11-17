@@ -632,9 +632,12 @@ main (int argc, char *argv[])
 	// Specifying channel width and channel number
 	//Arguments are (AP,stations,SSID,channel index,channel number, channel width)
 
+
+
 	//问题所在:
 	// Simulator::Run ();//测试结果:事件数相同,m_unscheduledEvent=22
-	wifi.ConfigureDevices(AP1NodeContainer,wifi1StaNodeContainer,ssidname,0,38,40);
+	wifi.ConfigureDevices(AP1NodeContainer,wifi1StaNodeContainer,ssidname,0,38,40);//问题events少1
+	Simulator::Run();//测试
 	ap1Devices = wifi.GetNetDeviceContainerAP();
 	sta1Devices = wifi.GetNetDeviceContainerSTA();
 	ssidname={"AP2"};//SSID of AP2
@@ -886,7 +889,7 @@ main (int argc, char *argv[])
 	
 	FlowMonitorHelper flowmon;
   Ptr<FlowMonitor> monitor = flowmon.InstallAll();
-	Simulator::Run ();//测试
+	// Simulator::Run ();//测试
 	Simulator::Stop (Seconds (simulationTime));
 	
 	/*Schedule the sending of time from switch to AP */

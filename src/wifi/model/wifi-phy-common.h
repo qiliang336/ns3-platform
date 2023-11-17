@@ -556,6 +556,9 @@ uint16_t GetMaximumChannelWidth(WifiModulationClass modulation);
  */
 bool IsEht(WifiPreamble preamble);
 
+//新增
+uint16_t GetChannelWidthForTransmission (WifiMode mode, uint16_t maxSupportedChannelWidth);
+
 } // namespace ns3
 
 #endif /* WIFI_PHY_COMMON_H */

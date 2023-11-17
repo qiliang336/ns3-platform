@@ -290,10 +290,14 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      */
     Ptr<WifiMpdu> GetOriginal(Ptr<WifiMpdu> mpdu);
 
+    //新增
+    static const ConstIterator EMPTY;         //!< Invalid iterator to signal an empty queue
+  
   protected:
     using Queue<WifiMpdu, WifiMacQueueContainer>::GetContainer;
 
     void DoDispose() override;
+
 
   private:
     /**

@@ -24,6 +24,8 @@
 #include "multi-user-scheduler.h"
 #include <list>
 
+//新增
+#include "ns3/wifi-mac-queue-item.h"
 
 namespace ns3 {
 

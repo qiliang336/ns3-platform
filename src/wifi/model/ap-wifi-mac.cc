@@ -2068,5 +2068,11 @@ ApWifiMac::GetMaxBufferStatus(Mac48Address address) const
     }
     return 255;
 }
+//新增
+const std::map<uint16_t, Mac48Address>&
+ApWifiMac::GetStaList (void) const
+{
+  return m_staList;
+}
 
 } // namespace ns3

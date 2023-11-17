@@ -171,8 +171,8 @@ StMultiUserScheduler::TrySendingBsrpTf (void)
   Mac48Address receiver = Mac48Address::GetBroadcast ();
   if (trigger.GetNUserInfoFields () == 1)
     {
-      NS_ASSERT (m_apMac->GetStaList ().find (trigger.begin ()->GetAid12 ()) != m_apMac->GetStaList ().end ());
-      receiver = m_apMac->GetStaList ().at (trigger.begin ()->GetAid12 ());
+      NS_ASSERT (m_apMac->GetStaList().find(trigger.begin ()->GetAid12 ()) != m_apMac->GetStaList ().end ());
+      receiver = m_apMac->GetStaList().at (trigger.begin ()->GetAid12 ());
     }
 
   WifiMacHeader hdr (WIFI_MAC_CTL_TRIGGER);
@@ -312,7 +312,7 @@ StMultiUserScheduler::TrySendingBasicTf (void)
               // AssignRuIndices will be called below to set RuSpec
               txVector.SetHeMuUserInfo (staId,
                                         {{(i < count ? ruType : HeRu::RU_26_TONE), 1, false},
-                                        GetDlMuInfo ().txParams.m_txVector.GetMode (staId),
+                                        GetDlMuInfo ().txParams.m_txVector.GetMode (staId).GetMcsValue(),
                                         GetDlMuInfo ().txParams.m_txVector.GetNss (staId)});
 
               candidateIt++;
@@ -335,7 +335,7 @@ StMultiUserScheduler::TrySendingBasicTf (void)
               // AssignRuIndices will be called below to set RuSpec
               txVector.SetHeMuUserInfo (staId,
                                         {{(i < count ? ruType : HeRu::RU_26_TONE), 1, false},
-                                        HePhy::GetHeMcs (userInfoIt->GetUlMcs ()),
+                                        HePhy::GetHeMcs (userInfoIt->GetUlMcs ()).GetMcsValue(),
                                         userInfoIt->GetNss ()});
 
               candidateIt++;
@@ -591,7 +591,7 @@ StMultiUserScheduler::TrySendingDlMuPpdu (void)
 
                   m_txParams.m_txVector.SetHeMuUserInfo (staIt->aid,
                                                          {{currRuType, 1, false},
-                                                          suTxVector.GetMode (),
+                                                          suTxVector.GetMode ().GetMcsValue(),
                                                           suTxVector.GetNss ()});
 
                   if (!m_heFem->TryAddMpdu (mpdu, m_txParams, actualAvailableTime))
@@ -680,7 +680,7 @@ StMultiUserScheduler::ComputeDlMuInfo (void)
       // AssignRuIndices will be called below to set RuSpec
       dlMuInfo.txParams.m_txVector.SetHeMuUserInfo (staId,
                                                     {{(i < nRusAssigned ? ruType : HeRu::RU_26_TONE), 1, false},
-                                                      m_txParams.m_txVector.GetMode (staId),
+                                                      m_txParams.m_txVector.GetMode (staId).GetMcsValue(),
                                                       m_txParams.m_txVector.GetNss (staId)});
       candidateIt++;
     }

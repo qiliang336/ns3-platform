@@ -421,6 +421,13 @@ class QosTxop : public Txop
     //新增
     void SetQosFrameExchangeManager (const Ptr<QosFrameExchangeManager> qosFem);
     void SetAccessCategory (AcIndex ac);
+    Ptr<const WifiMacQueueItem> PeekNextMpdu (uint8_t tid = 8,
+                                            Mac48Address recipient = Mac48Address::GetBroadcast ());
+    
+    Ptr<const WifiMacQueueItem> PeekNextMpdu (WifiMacQueueItem::QueueIteratorPair queueIt,
+                                            uint8_t tid = 8,
+                                            Mac48Address recipient = Mac48Address::GetBroadcast ());
+    bool GetBaAgreementEstablished (Mac48Address address, uint8_t tid) const;                                        
   protected:
     /**
      * Structure holding information specific to a single link. Here, the meaning of

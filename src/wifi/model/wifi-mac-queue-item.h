@@ -199,6 +199,24 @@ class WifiMacQueueItem : public SimpleRefCount<WifiMacQueueItem>
      */
     virtual void Print(std::ostream& os) const;
 
+    //新增
+    
+    struct QueueIteratorPair
+    {
+      WifiMacQueue* queue;  //!< pointer to the queue where the MSDU is enqueued
+      ConstIterator it;     //!< iterator pointing to the MSDU in the queue
+    };
+
+    /**
+   * Get a const reference to the list of iterators pointing to the positions
+   * of the items in the queue. The list is empty if the item is not stored in
+   * a queue. The list contains multiple iterators in case of A-MSDU that is not
+   * stored in the Block Ack Manager retransmit queue.
+   *
+   * \return the list of iterators pointing to the positions of the items in the queue
+   */
+    const std::list<QueueIteratorPair>& GetQueueIteratorPairs (void) const;
+
   private:
     /**
      * \brief Aggregate the MSDU contained in the given MPDU to this MPDU (thus
@@ -217,6 +235,9 @@ class WifiMacQueueItem : public SimpleRefCount<WifiMacQueueItem>
     ConstIterator m_queueIt;      //!< Queue iterator pointing to this MPDU, if queued
     AcIndex m_queueAc;            //!< AC associated with the queue this MPDU is stored into
     bool m_inFlight;              //!< whether the MPDU is in flight
+
+    //新增
+    std::list<QueueIteratorPair> m_queueIts;      //!< Queue iterators pointing to this MSDU(s), if queued
 };
 
 /**

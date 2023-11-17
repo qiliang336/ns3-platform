@@ -287,4 +287,11 @@ operator<<(std::ostream& os, const WifiMacQueueItem& item)
     return os;
 }
 
+//新增
+const std::list<WifiMacQueueItem::QueueIteratorPair>&
+WifiMacQueueItem::GetQueueIteratorPairs (void) const
+{
+  return m_queueIts;
+}
+
 } // namespace ns3

@@ -41,6 +41,8 @@
 #include "ns3/random-variable-stream.h"
 #include "ns3/simulator.h"
 
+#include "ns3/wifi-mac-queue-item.h"
+
 #undef NS_LOG_APPEND_CONTEXT
 #define NS_LOG_APPEND_CONTEXT                                                                      \
     if (m_mac)                                                                                     \
@@ -781,5 +783,18 @@ QosTxop::SetAccessCategory (AcIndex ac)
 {
   NS_LOG_FUNCTION (this << +ac);
   m_ac = ac;
+}
+
+Ptr<const WifiMacQueueItem>
+QosTxop::PeekNextMpdu (uint8_t tid, Mac48Address recipient)
+{
+  return PeekNextMpdu ({nullptr, WifiMacQueue::EMPTY}, tid, recipient);
+}
+
+
+bool
+QosTxop::GetBaAgreementEstablished (Mac48Address address, uint8_t tid) const
+{
+  return m_baManager->ExistsAgreementInState (address, tid, OriginatorBlockAckAgreement::ESTABLISHED);
 }
 } // namespace ns3

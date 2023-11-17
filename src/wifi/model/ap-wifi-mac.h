@@ -169,6 +169,8 @@ class ApWifiMac : public WifiMac
      * \return the maximum among the values of the Queue Size subfields
      */
     uint8_t GetMaxBufferStatus(Mac48Address address) const;
+    //新增
+    const std::map<uint16_t, Mac48Address>& GetStaList (void) const;
 
   protected:
     /**
@@ -522,6 +524,8 @@ class ApWifiMac : public WifiMac
 
     TracedCallback<uint16_t /* AID */, Mac48Address> m_assocLogger;   ///< association logger
     TracedCallback<uint16_t /* AID */, Mac48Address> m_deAssocLogger; ///< deassociation logger
+    //新增
+    std::map<uint16_t, Mac48Address> m_staList; //!< Map of all stations currently associated to the AP with their association ID
 };
 
 } // namespace ns3

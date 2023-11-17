@@ -1032,6 +1032,9 @@ class WifiRemoteStationManager : public Object
      */
     Ptr<WifiMac> GetMac() const;
 
+    //新增
+    WifiTxVector GetDataTxVector (const WifiMacHeader &header);
+
   protected:
     void DoDispose() override;
     /**
@@ -1467,6 +1470,9 @@ class WifiRemoteStationManager : public Object
      * exceeded the maximum number of attempts
      */
     TracedCallback<Mac48Address> m_macTxFinalDataFailed;
+
+    //新增
+    virtual WifiTxVector DoGetDataTxVector (WifiRemoteStation *station) = 0;
 };
 
 } // namespace ns3

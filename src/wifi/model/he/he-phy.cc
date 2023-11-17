@@ -1873,6 +1873,20 @@ HePhy::GetRxPpduFromTxPpdu(Ptr<const WifiPpdu> ppdu)
     return PhyEntity::GetRxPpduFromTxPpdu(ppdu);
 }
 
+//新增
+uint16_t
+HePhy::ConvertHeTbPpduDurationToLSigLength (Time ppduDuration, WifiPhyBand band)
+{
+  uint8_t sigExtension = 0;
+  if (band == WIFI_PHY_BAND_2_4GHZ)
+    {
+      sigExtension = 6;
+    }
+  uint8_t m = 2; //HE TB PPDU so m is set to 2
+  uint16_t length = ((ceil ((static_cast<double> (ppduDuration.GetNanoSeconds () - (20 * 1000) - (sigExtension * 1000)) / 1000) / 4.0) * 3) - 3 - m);
+  return length;
+}
+
 } // namespace ns3
 
 namespace

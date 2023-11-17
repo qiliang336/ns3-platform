@@ -839,7 +839,11 @@ TypeId
 TypeId::LookupByName(std::string name)
 {
     NS_LOG_FUNCTION(name);
-    uint16_t uid = IidManager::Get()->GetUid(name);
+
+    IidManager* tmp = IidManager::Get ();
+    uint16_t uid = tmp->GetUid (name);
+    // uint16_t uid = IidManager::Get()->GetUid(name);//修改,便于调试
+    
     NS_ASSERT_MSG(uid != 0, "Assert in TypeId::LookupByName: " << name << " not found");
     return TypeId(uid);
 }
